@@ -386,16 +386,7 @@ end tell
 **Windows needs to use:**
 - **PowerShell** - Send keystrokes
 - **AutoHotkey** - Automation scripts
-- **robotjs** - Node.js keyboard simulation (already in dependencies)
-
-Example code (using robotjs):
-```javascript
-const robot = require('robotjs');
-robot.typeString('email@example.com');
-robot.keyTap('tab');
-robot.typeString('password');
-robot.keyTap('enter');
-```
+- **AutoHotkey** - Windows automation scripting tool
 
 ### Adaptation Steps
 
@@ -412,10 +403,10 @@ const isMac = process.platform === 'darwin';
 3. **Modify `src/windsurfManager.js`**
    - Adapt Windows cleanup commands
    - Adapt Windows launch commands
-   - Use robotjs instead of AppleScript
+   - Use AutoHotkey instead of AppleScript
 
 4. **Modify `package.json`**
-   - Ensure robotjs dependency is correctly installed
+   - Remove robotjs dependency (no longer used)
    - Configure Windows build options
 
 5. **Testing**

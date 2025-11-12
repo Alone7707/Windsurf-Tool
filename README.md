@@ -414,16 +414,7 @@ end tell
 **Windows 需要使用：**
 - **PowerShell** - 发送按键
 - **AutoHotkey** - 自动化脚本
-- **robotjs** - Node.js 键盘模拟（已包含在依赖中）
-
-示例代码（使用 robotjs）：
-```javascript
-const robot = require('robotjs');
-robot.typeString('email@example.com');
-robot.keyTap('tab');
-robot.typeString('password');
-robot.keyTap('enter');
-```
+- **AutoHotkey** - Windows 自动化脚本工具
 
 ### 适配步骤
 
@@ -440,10 +431,10 @@ const isMac = process.platform === 'darwin';
 3. **修改 `src/windsurfManager.js`**
    - 适配 Windows 的清理命令
    - 适配 Windows 的启动命令
-   - 使用 robotjs 替代 AppleScript
+   - 使用 AutoHotkey 替代 AppleScript
 
 4. **修改 `package.json`**
-   - 确保 robotjs 依赖正确安装
+   - 移除 robotjs 依赖（已不再使用）
    - 配置 Windows 打包选项
 
 5. **测试**

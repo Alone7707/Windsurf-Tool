@@ -1,0 +1,313 @@
+Windsurf 完整自动化账号切换系统
+=====================================
+
+## 功能概述
+
+实现了从关闭应用到登录成功的完全自动化流程：
+1. ✅ 自动检测并关闭 Windsurf 应用
+2. ✅ 完整清除配置和机器码
+3. ✅ 自动启动 Windsurf 应用
+4. ✅ 自动点击初始设置按钮（Get Started → Next → Next → Log in）
+5. ✅ 自动在浏览器中填写账号密码并登录
+6. ✅ 自动处理验证码（如有）
+7. ✅ 等待登录成功并重定向
+
+## 核心技术
+
+### 1. Windsurf 应用控制
+- **检测应用路径**: 自动查找 /Applications/Windsurf.app
+- **进程管理**: 使用 pgrep 检测进程，killall 关闭应用
+- **配置清除**: 删除所有缓存、配置、机器码文件
+
+### 2. UI 自动化（AppleScript）
+- **窗口检测**: 等待 Windsurf 窗口出现
+- **按钮点击**: 使用 System Events 点击 UI 元素
+- **多种方式**: 支持按名称、索引点击按钮
+- **容错机制**: 尝试多种可能的按钮名称（中英文）
+
+### 3. 浏览器自动化（Puppeteer）
+- **URL 监听**: 自动检测登录 URL 出现
+- **表单填写**: 自动输入邮箱和密码
+- **验证码处理**: 检测并等待用户完成验证码
+- **登录确认**: 等待登录成功页面
+
+## 使用方法
+
+### 前置条件
+
+1. **安装依赖**
+   ```bash
+   cd /Users/oreo/Desktop/windsurf
+   npm install
+   ```
+
+2. **启用辅助功能权限**
+   - 打开 系统偏好设置 → 安全性与隐私 → 隐私 → 辅助功能
+   - 添加并勾选你的应用（Electron 或终端）
+
+3. **确保 Windsurf 已安装**
+   - 应用路径: /Applications/Windsurf.app
+
+### 启动应用
+
+```bash
+npm start
+```
+
+### 完整自动化切换流程
+
+1. **切换到"切换账号"标签页**
+
+2. **选择要切换的账号**
+   - 从下拉列表中选择账号
+
+3. **点击"🚀 完整自动化切换"按钮**
+
+4. **系统自动执行以下步骤：**
+   - 步骤 1/5: 正在重置Windsurf配置...
+   - 步骤 2/5: 正在启动浏览器监听...
+   - 步骤 3/5: 正在启动Windsurf并完成初始设置...
+   - 步骤 4/5: 正在浏览器中自动登录...
+   - 步骤 5/5: 等待登录完成...
+
+5. **等待完成**
+   - 整个过程约需 1-2 分钟
+   - 如有验证码，会暂停等待手动完成
+   - 登录成功后浏览器自动关闭
+
+## 文件结构
+
+```
+windsurf/
+├── main.js                      # Electron 主进程
+├── renderer.js                  # 前端逻辑
+├── index.html                   # UI 界面
+├── package.json                 # 依赖配置
+└── src/
+    ├── windsurfManager.js       # Windsurf 管理（核心）
+    ├── browserAutomation.js     # 浏览器自动化（新增）
+    ├── registrationBot.js       # 批量注册
+    └── emailReceiver.js         # 邮件接收
+```
+
+## 核心代码说明
+
+### WindsurfManager 新增功能
+
+1. **detectWindsurfApp()** - 检测应用路径
+   - 支持多个可能的安装位置
+   - 自动更新应用路径
+
+2. **clickButton(buttonName, windowIndex)** - 点击按钮
+   - 使用 AppleScript System Events
+   - 支持按名称点击
+
+3. **clickButtonByIndex(index, windowIndex)** - 按索引点击
+   - 当按钮名称未知时使用
+   - 作为备用方案
+
+4. **waitForWindow(timeout)** - 等待窗口
+   - 轮询检测窗口数量
+   - 支持超时设置
+
+5. **completeOnboarding()** - 完成初始设置
+   - 自动点击 4 个按钮
+   - 支持中英文按钮名称
+   - 多重容错机制
+
+### BrowserAutomation 类
+
+1. **launch(headless)** - 启动浏览器
+   - 使用 Puppeteer
+   - 设置反检测参数
+
+2. **waitForLoginUrl(timeout)** - 等待登录 URL
+   - 轮询检测所有标签页
+   - 匹配 windsurf.com/editor/signin
+
+3. **fillLoginForm(email, password)** - 填写表单
+   - 自动查找输入框
+   - 模拟真实输入
+
+4. **handleCaptcha()** - 处理验证码
+   - 检测常见验证码类型
+   - 等待用户手动完成
+
+5. **waitForLoginSuccess(timeout)** - 等待成功
+   - 检测成功页面文本
+   - 确认重定向完成
+
+## 故障排除
+
+### 问题 1: AppleScript 权限错误
+
+**错误信息:**
+```
+"System Events"遇到一个错误：不能将"process "Windsurf""设置为"true"。 (-10006)
+```
+
+**解决方案:**
+1. 打开 系统偏好设置 → 安全性与隐私 → 隐私 → 辅助功能
+2. 点击左下角锁图标解锁
+3. 点击 + 号添加应用
+4. 选择你的应用或终端
+5. 勾选复选框
+
+### 问题 2: 找不到 Windsurf 应用
+
+**错误信息:**
+```
+未找到Windsurf应用,请确认已安装
+```
+
+**解决方案:**
+1. 确认 Windsurf 已安装在 /Applications/Windsurf.app
+2. 如果安装在其他位置，修改 windsurfManager.js 中的路径
+
+### 问题 3: 按钮点击失败
+
+**可能原因:**
+- 窗口未完全加载
+- 按钮名称不匹配
+- 窗口索引错误
+
+**解决方案:**
+1. 增加等待时间（修改 sleep 时长）
+2. 使用 getWindowButtons() 查看实际按钮名称
+3. 尝试使用索引点击
+
+### 问题 4: 浏览器登录失败
+
+**可能原因:**
+- 输入框选择器不匹配
+- 页面加载慢
+- 验证码未完成
+
+**解决方案:**
+1. 检查浏览器控制台错误
+2. 增加等待超时时间
+3. 手动完成验证码
+
+### 问题 5: Puppeteer 安装失败
+
+**解决方案:**
+```bash
+# 使用国内镜像
+npm config set puppeteer_download_host=https://npm.taobao.org/mirrors
+npm install puppeteer
+```
+
+## 性能优化
+
+### 1. 调整等待时间
+
+根据你的电脑性能调整各步骤的等待时间：
+
+```javascript
+// windsurfManager.js
+await this.sleep(3000);  // 启动后等待时间
+await this.sleep(2000);  // 按钮点击间隔
+```
+
+### 2. 并行处理
+
+浏览器和 Windsurf 可以并行启动：
+
+```javascript
+// main.js - full-auto-switch
+await browser.launch(false);  // 先启动浏览器
+const loginResult = await manager.autoLogin(...);  // 再启动 Windsurf
+```
+
+### 3. 减少日志输出
+
+生产环境可以减少 console.log：
+
+```javascript
+// 注释掉调试日志
+// console.log('✓ 已点击按钮:', buttonName);
+```
+
+## 安全建议
+
+1. **账号密码加密**
+   - 建议使用加密存储账号密码
+   - 不要在代码中硬编码凭据
+
+2. **权限最小化**
+   - 只授予必要的辅助功能权限
+   - 定期检查权限列表
+
+3. **网络安全**
+   - 使用 HTTPS 连接
+   - 验证登录 URL 合法性
+
+4. **数据备份**
+   - 定期备份账号数据
+   - 保存重要配置文件
+
+## 高级功能
+
+### 1. 批量切换
+
+可以扩展为批量切换多个账号：
+
+```javascript
+async function batchSwitch(accounts) {
+  for (const account of accounts) {
+    await fullAutoSwitch(account);
+    await sleep(60000); // 每个账号间隔 1 分钟
+  }
+}
+```
+
+### 2. 定时切换
+
+使用 cron 或定时任务自动切换：
+
+```javascript
+const schedule = require('node-schedule');
+
+schedule.scheduleJob('0 0 * * *', async () => {
+  // 每天 0 点切换账号
+  await fullAutoSwitch(nextAccount);
+});
+```
+
+### 3. 状态监控
+
+添加登录状态监控：
+
+```javascript
+async function checkLoginStatus() {
+  // 检查 Windsurf 是否已登录
+  // 返回登录状态
+}
+```
+
+## 更新日志
+
+### v2.0.0 (2024-01-XX)
+- ✅ 新增完整自动化切换功能
+- ✅ 新增 AppleScript UI 自动化
+- ✅ 新增 Puppeteer 浏览器自动化
+- ✅ 新增验证码检测和处理
+- ✅ 优化错误处理和日志输出
+- ✅ 改进容错机制
+
+### v1.0.0
+- ✅ 基础账号管理
+- ✅ 手动切换账号
+- ✅ 批量注册功能
+
+## 技术支持
+
+如遇问题，请检查：
+1. 系统日志输出
+2. 浏览器控制台
+3. Electron DevTools
+4. macOS 系统日志
+
+## 许可证
+
+MIT License

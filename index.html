@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' *; frame-src *; img-src * data:; connect-src *; font-src *;">
+  <title>Windsurf-Tool 1.0</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+      background: #f5f5f7;
+      padding: 20px;
+      font-size: 13px;
+      color: #1d1d1f;
+      line-height: 1.47059;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      background: #ffffff;
+      min-height: calc(100vh - 40px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0;
+      padding: 0;
+      border-bottom: 1px solid #d2d2d7;
+      background: #fafafa;
+    }
+
+    .tab {
+      padding: 12px 24px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 400;
+      font-size: 13px;
+      color: #6e6e73;
+      border: none;
+      background: transparent;
+      border-bottom: 2px solid transparent;
+      flex: 1;
+    }
+
+    .tab:hover {
+      color: #1d1d1f;
+      background: #f5f5f7;
+    }
+
+    .tab.active {
+      color: #007aff;
+      background: #ffffff;
+      border-bottom-color: #007aff;
+      font-weight: 500;
+    }
+
+    .tab-content {
+      display: none;
+      padding: 24px 32px 32px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      font-size: 13px;
+      color: #1d1d1f;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d2d2d7;
+      border-radius: 6px;
+      font-size: 13px;
+      background: #ffffff;
+      font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #007aff;
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+    }
+
+    .btn {
+      padding: 7px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 400;
+      cursor: pointer;
+      margin-right: 8px;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: #007aff;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #0051d5;
+    }
+
+    .btn-primary:active {
+      background: #004fc4;
+    }
+
+    .btn-danger {
+      background: #ff3b30;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #e6342a;
+    }
+
+    .btn-danger:active {
+      background: #cc2e24;
+    }
+
+    .btn-success {
+      background: #34c759;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #2fb350;
+    }
+
+    .btn-success:active {
+      background: #2a9f47;
+    }
+
+    .btn-warning {
+      background: #ff9500;
+      color: white;
+    }
+
+    .btn-warning:hover {
+      background: #e68600;
+    }
+
+    .btn-warning:active {
+      background: #cc7700;
+    }
+
+    .accounts-list {
+      margin-top: 24px;
+    }
+
+    .account-item {
+      background: #f5f5f7;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #e5e5ea;
+    }
+
+    .account-item:hover {
+      background: #ebebf0;
+    }
+
+    .account-info {
+      flex: 1;
+    }
+
+    .account-email {
+      font-weight: 500;
+      font-size: 14px;
+      color: #1d1d1f;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .account-date {
+      font-size: 11px;
+      color: #86868b;
+      line-height: 1.5;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+      margin-left: 10px;
+      color: white;
+    }
+    
+    .status-expired {
+      background: #ff3b30;
+    }
+    
+    .status-warning {
+      background: #ff9500;
+    }
+    
+    .status-active {
+      background: #34c759;
+    }
+
+    .account-actions button {
+      margin-left: 6px;
+      padding: 8px 16px;
+      font-size: 12px;
+    }
+
+    .accounts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
+      width: 100%;
+      margin-top: 16px;
+    }
+
+    .account-card {
+      background: #f5f5f7;
+      border: 1px solid #e5e5ea;
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 88px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .account-card:hover { 
+      background: #ebebf0;
+      border-color: #d2d2d7;
+    }
+    .account-card .email { 
+      font-size: 12px; 
+      font-weight: 500; 
+      color: #1d1d1f; 
+      word-wrap: break-word; 
+      word-break: break-all;
+      line-height: 1.4;
+      padding-right: 48px;
+    }
+    .account-card .badge { 
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      padding: 3px 6px; 
+      border-radius: 4px; 
+      font-size: 10px; 
+      font-weight: 500;
+      color: #fff;
+      white-space: nowrap;
+    }
+    .account-card .meta { 
+      font-size: 11px; 
+      color: #86868b; 
+      line-height: 1.3;
+      margin-top: 6px;
+      word-wrap: break-word;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-overlay.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-dialog {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 24px;
+      min-width: 400px;
+      max-width: 500px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+      font-size: 17px;
+      font-weight: 600;
+      color: #1d1d1f;
+      margin-bottom: 20px;
+    }
+    .modal-footer {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e5e5ea;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #007aff;
+      border-radius: 4px;
+      width: 0;
+    }
+
+    .status-message {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin: 16px 0;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .status-success {
+      background: #d1f2dd;
+      color: #1d7324;
+      border: 1px solid #a6e7b8;
+    }
+
+    .status-error {
+      background: #ffd9d6;
+      color: #c41e3a;
+      border: 1px solid #ffb3ad;
+    }
+
+    .status-info {
+      background: #d1e7ff;
+      color: #0040dd;
+      border: 1px solid #a6d0ff;
+    }
+
+    .domain-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .domain-tag {
+      background: #f5f5f7;
+      color: #1d1d1f;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #e5e5ea;
+    }
+
+    .domain-tag:hover {
+      background: #ebebf0;
+    }
+
+    .domain-tag button {
+      background: none;
+      border: none;
+      color: #86868b;
+      cursor: pointer;
+      font-size: 14px;
+      padding: 0;
+      line-height: 1;
+      transition: color 0.2s ease;
+    }
+
+    .domain-tag button:hover {
+      color: #1d1d1f;
+    }
+
+    h2 {
+      font-size: 17px;
+      font-weight: 600;
+      color: #1d1d1f;
+      margin-bottom: 16px;
+      margin-top: 24px;
+    }
+
+    h2:first-child {
+      margin-top: 0;
+    }
+
+    h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1d1d1f;
+      margin-bottom: 12px;
+      margin-top: 20px;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #e5e5ea;
+      margin: 24px 0;
+    }
+
+    .app-header {
+      padding: 24px 32px 20px;
+      border-bottom: 1px solid #e5e5ea;
+      background: #fafafa;
+    }
+
+    .app-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1d1d1f;
+      margin-bottom: 8px;
+    }
+
+    .app-subtitle {
+      font-size: 13px;
+      color: #34c759;
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+
+    .app-links {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .app-link {
+      font-size: 13px;
+      color: #007aff;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .app-link:hover {
+      text-decoration: underline;
+    }
+
+    .app-description {
+      font-size: 13px;
+      color: #6e6e73;
+      line-height: 1.5;
+    }
+
+    .stats-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: #f5f5f7;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid #e5e5ea;
+      min-height: 80px;
+    }
+
+    .stat-card:hover {
+      background: #ebebf0;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: #86868b;
+      font-weight: 400;
+    }
+
+    .switch-accounts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
+      width: 100%;
+      max-height: 380px;
+      overflow-y: auto;
+      padding-right: 4px;
+      margin-top: 16px;
+    }
+
+    .used-accounts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 8px;
+      width: 100%;
+      max-height: 380px;
+      overflow-y: auto;
+      padding-right: 4px;
+      margin-top: 16px;
+    }
+
+    .switch-account-card {
+      background: #f5f5f7;
+      border: 1px solid #e5e5ea;
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 88px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .switch-account-card:hover { 
+      background: #ebebf0;
+      border-color: #d2d2d7;
+    }
+
+    .used-account-card {
+      background: #ebebf0;
+      border: 1px solid #d2d2d7;
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 88px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      position: relative;
+      opacity: 0.7;
+    }
+
+    .used-account-card:hover { 
+      background: #e0e0e5;
+      opacity: 1;
+    }
+    .switch-account-card .email,
+    .used-account-card .email { 
+      font-size: 12px; 
+      font-weight: 500; 
+      color: #1d1d1f; 
+      word-wrap: break-word; 
+      word-break: break-all;
+      line-height: 1.4;
+      padding-right: 48px;
+    }
+    .switch-account-card .badge,
+    .used-account-card .badge { 
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      padding: 3px 6px; 
+      border-radius: 4px; 
+      font-size: 10px; 
+      font-weight: 500;
+      color: #fff;
+      white-space: nowrap;
+    }
+    .switch-account-card .meta,
+    .used-account-card .meta { 
+      font-size: 11px; 
+      color: #86868b; 
+      line-height: 1.3;
+      margin-top: 6px;
+      word-wrap: break-word;
+    }
+
+    /* 教程页面样式 */
+    .tutorial-section {
+      margin-bottom: 32px;
+    }
+
+    .tutorial-card {
+      background: #f5f5f7;
+      border-radius: 8px;
+      padding: 20px;
+      border: 1px solid #e5e5ea;
+    }
+
+    .tutorial-step {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .tutorial-step:last-child {
+      margin-bottom: 0;
+    }
+
+    .step-number {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      background: #007aff;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .step-content h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1d1d1f;
+      margin-bottom: 8px;
+    }
+
+    .step-content p {
+      font-size: 13px;
+      color: #6e6e73;
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    .step-content ul {
+      margin: 8px 0;
+      padding-left: 20px;
+    }
+
+    .step-content li {
+      font-size: 13px;
+      color: #6e6e73;
+      margin-bottom: 4px;
+      line-height: 1.5;
+    }
+
+    .faq-item {
+      background: #ffffff;
+      border: 1px solid #e5e5ea;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+    }
+
+    .faq-question {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1d1d1f;
+      margin-bottom: 12px;
+    }
+
+    .faq-answer {
+      font-size: 13px;
+      color: #6e6e73;
+      line-height: 1.6;
+    }
+
+    .faq-answer p {
+      margin-bottom: 8px;
+    }
+
+    .faq-answer ul,
+    .faq-answer ol {
+      margin: 8px 0;
+      padding-left: 24px;
+    }
+
+    .faq-answer li {
+      margin-bottom: 6px;
+    }
+
+    .faq-answer code {
+      background: #f5f5f7;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 12px;
+    }
+
+    .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+    }
+
+    .tip-card {
+      background: #ffffff;
+      border: 1px solid #e5e5ea;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .tip-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .tip-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1d1d1f;
+      margin-bottom: 8px;
+    }
+
+    .tip-content {
+      font-size: 13px;
+      color: #6e6e73;
+      line-height: 1.5;
+    }
+
+    .warning-box {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 8px;
+      padding: 16px 20px;
+    }
+
+    .warning-box ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .warning-box li {
+      font-size: 13px;
+      color: #856404;
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    .contact-box {
+      background: #f5f5f7;
+      border: 1px solid #e5e5ea;
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .contact-box p {
+      font-size: 13px;
+      color: #6e6e73;
+      line-height: 1.5;
+      margin-bottom: 0;
+    }
+  </style>
+  <script src="src/i18n.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="app-header">
+      <div class="app-title">Windsurf-Tool 1.0</div>
+      <div class="app-subtitle">✨ 本工具完全免费</div>
+      <div class="app-links">
+        <a href="https://github.com/crispvibe/Windsurf-Tool" class="app-link" target="_blank">
+          <span>📦</span>
+          <span>GitHub 开源地址</span>
+        </a>
+        <a href="https://www.crispvibe.cn/Windsurf-tool" class="app-link" target="_blank">
+          <span>🌐</span>
+          <span>官网下载地址</span>
+        </a>
+      </div>
+      <div class="app-description">
+        <strong>工具用途：</strong>自动化管理 Windsurf 账号，支持批量注册、账号切换、到期提醒等功能，帮助开发者高效管理多个 Windsurf Pro 试用账号。<br>
+        <strong>🔒 安全保障：</strong>完全本地化运行，不依赖任何服务器，所有数据存储在本地，安全可靠。<br>
+        <strong>💬 交流群：</strong>Windsurf-Tool 开源交流群 QQ 群号：<span style="color: #007aff; font-weight: 600;">469028100</span>
+      </div>
+    </div>
+    
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('register')" data-i18n="tabRegister">批量注册 / 账号管理</div>
+      <div class="tab" onclick="switchTab('switch')" data-i18n="tabSwitch">登录到Windsurf</div>
+      <div class="tab" onclick="switchTab('freeAccounts')" data-i18n="tabFreeAccounts">免费账号</div>
+      <div class="tab" onclick="switchTab('tutorial')" data-i18n="tabTutorial">使用教程</div>
+      <div class="tab" onclick="switchTab('settings')" data-i18n="tabSettings">配置域名/邮箱</div>
+    </div>
+
+    <!-- 批量注册 + 账号管理（合并） -->
+    <div id="register" class="tab-content active">
+      
+      <hr style="margin: 32px 0;">
+      <h2 data-i18n="accountManagement">账号管理</h2>
+
+      <div id="accountStats" style="display:none; margin-bottom:24px;">
+        <div class="stats-container">
+          <div class="stat-card">
+            <div class="stat-value" id="totalCount">0</div>
+            <div class="stat-label" data-i18n="totalAccounts">总账号数</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="activeCount">0</div>
+            <div class="stat-label" data-i18n="activeAccounts">可用账号</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="warningCount">0</div>
+            <div class="stat-label" data-i18n="warningAccounts">即将到期</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="expiredCount">0</div>
+            <div class="stat-label" data-i18n="expiredAccounts">已到期</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+        <div>
+          <button class="btn btn-success" onclick="loadAccounts()" data-i18n="refresh">刷新列表</button>
+          <button class="btn btn-primary" onclick="showAddAccountForm()" data-i18n="manualAdd">手动添加账号</button>
+          <button class="btn btn-primary" onclick="showImportAccountForm()" data-i18n="importAccounts">导入账号</button>
+        </div>
+        <div style="display:flex; align-items:flex-end; gap:8px;">
+          <div class="form-group" style="margin:0;">
+            <label style="margin-bottom:4px;" data-i18n="batchRegisterCount">批量注册数量</label>
+            <input type="number" id="registerCount" value="5" min="1" max="50" style="width:140px;">
+          </div>
+          <button class="btn btn-primary" onclick="startBatchRegister()" data-i18n="startBatchRegister">开始批量注册</button>
+          <button class="btn btn-warning" id="deleteModeBtn" onclick="toggleDeleteMode()" data-i18n="deleteModeOff">删除模式：关</button>
+        </div>
+      </div>
+
+      <div id="registerProgress" style="display:none; margin-top:12px;">
+        <div style="margin-bottom:8px; font-size:12px; color:#86868b; text-align:center;" id="progressText">0%</div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div id="registerStatus"></div>
+      </div>
+      
+      <div class="accounts-grid" id="accountsList"></div>
+    </div>
+
+    
+
+    <!-- 切换账号 -->
+    <div id="switch" class="tab-content">
+      <h2 data-i18n="switchAccountTitle">切换Windsurf账号</h2>
+      <div class="status-message status-info" style="padding:8px 12px; font-size:11px; line-height:1.6;">
+        <div data-i18n-html="autoLoginProcess"><strong>自动登录流程：</strong>重置配置和机器码 → 启动Windsurf → 自动登录选定账号 → 完成</div>
+        <div data-i18n-html="switchTip"><strong>💡 提示：</strong><strong>自动登录</strong>：一键完成所有步骤，包括浏览器登录（推荐） | <strong>清除配置</strong>：仅清除配置，不启动应用</div>
+      </div>
+      
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;">
+        <div id="selectedSwitchAccount" style="font-size:12px; color:#86868b; flex:1;" data-i18n="notSelectedAccount">
+          未选择账号
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-success" onclick="fullAutoSwitch()" data-i18n="autoLogin">🚀 自动登录</button>
+          <button class="btn btn-danger" onclick="clearWindsurf()" data-i18n="clearConfig">清除配置</button>
+        </div>
+      </div>
+
+      <div id="switchAccountsGrid" class="switch-accounts-grid"></div>
+
+      <hr style="margin: 24px 0;">
+      <h2 data-i18n="usedAccounts">已使用账号</h2>
+      <div id="usedAccountsSection">
+        <div id="usedAccountsGrid" class="used-accounts-grid"></div>
+      </div>
+      
+      <div id="switchStatus"></div>
+    </div>
+
+    <!-- 免费账号 -->
+    <div id="freeAccounts" class="tab-content" style="padding: 0;">
+      <iframe 
+        id="freeAccountsFrame"
+        src="http://www.crispvibe.cn/windsurf" 
+        style="width: 100%; height: calc(100vh - 100px); border: none; display: block;"
+        frameborder="0"
+        allowfullscreen
+      ></iframe>
+    </div>
+
+    <!-- 使用教程 -->
+    <div id="tutorial" class="tab-content">
+      <h2>📚 使用教程</h2>
+      
+      <!-- 快速开始 -->
+      <div class="tutorial-section">
+        <h3>🚀 快速开始</h3>
+        <div class="tutorial-card">
+          <div class="tutorial-step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h4>配置邮箱</h4>
+              <p>前往"配置域名/邮箱"页面，配置 IMAP 邮箱用于接收验证码。</p>
+              <ul>
+                <li>填写 IMAP 服务器地址（如：imap.gmail.com）</li>
+                <li>填写邮箱账号和密码</li>
+                <li>点击"测试连接"确保配置正确</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="tutorial-step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h4>批量注册账号</h4>
+              <p>在"批量注册 / 账号管理"页面进行账号注册。</p>
+              <ul>
+                <li>设置注册数量（1-50个）</li>
+                <li>点击"开始批量注册"</li>
+                <li>等待自动注册完成</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="tutorial-step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h4>切换账号</h4>
+              <p>前往"登录到Windsurf"页面切换账号。</p>
+              <ul>
+                <li>选择要使用的账号</li>
+                <li>点击"🚀 自动登录"</li>
+                <li>等待自动完成登录流程</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 功能详解 -->
+      <div class="tutorial-section">
+        <h3>💡 功能详解</h3>
+        
+        <div class="faq-item">
+          <div class="faq-question">📝 批量注册</div>
+          <div class="faq-answer">
+            <p><strong>功能说明：</strong>自动批量注册 Windsurf 账号，无需手动操作。</p>
+            <p><strong>使用方法：</strong></p>
+            <ol>
+              <li>确保已配置 IMAP 邮箱</li>
+              <li>设置注册数量</li>
+              <li>点击"开始批量注册"</li>
+              <li>系统会自动生成邮箱、注册账号、接收验证码</li>
+            </ol>
+            <p><strong>注意事项：</strong>注册过程需要时间，请耐心等待。每个账号注册大约需要 1-2 分钟。</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">👤 账号管理</div>
+          <div class="faq-answer">
+            <p><strong>功能说明：</strong>管理所有已注册的账号，查看到期时间。</p>
+            <p><strong>功能特点：</strong></p>
+            <ul>
+              <li><strong>统计信息：</strong>显示总账号数、可用账号、即将到期、已到期账号数量</li>
+              <li><strong>到期提醒：</strong>账号卡片会根据到期时间显示不同颜色标签</li>
+              <li><strong>快速复制：</strong>点击账号卡片可复制账号密码</li>
+              <li><strong>删除模式：</strong>开启后点击卡片可删除账号</li>
+            </ul>
+            <p><strong>账号状态：</strong></p>
+            <ul>
+              <li>🟢 <strong>可用：</strong>剩余 4 天以上</li>
+              <li>🟠 <strong>即将到期：</strong>剩余 1-3 天</li>
+              <li>🔴 <strong>已到期：</strong>试用期已结束</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">📥 导入账号</div>
+          <div class="faq-answer">
+            <p><strong>功能说明：</strong>从本地文件批量导入已有账号。</p>
+            <p><strong>文件格式：</strong></p>
+            <ul>
+              <li>仅支持 .txt 文件</li>
+              <li>每行一个账号，格式：<code>邮箱 密码</code></li>
+              <li>示例：<code>user@example.com mypassword123</code></li>
+            </ul>
+            <p><strong>使用步骤：</strong></p>
+            <ol>
+              <li>准备好符合格式的 txt 文件</li>
+              <li>点击"导入账号"按钮</li>
+              <li>选择文件并预览内容</li>
+              <li>确认无误后点击"导入"</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">🔄 账号切换</div>
+          <div class="faq-answer">
+            <p><strong>功能说明：</strong>一键切换 Windsurf 账号，自动完成登录。</p>
+            <p><strong>自动登录流程：</strong></p>
+            <ol>
+              <li>关闭 Windsurf 应用</li>
+              <li>清除配置文件和机器码</li>
+              <li>启动 Windsurf</li>
+              <li>自动在浏览器中完成登录</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">🆓 免费账号</div>
+          <div class="faq-answer">
+            <p><strong>功能说明：</strong>访问官网获取每日更新的免费 Windsurf 账号。</p>
+            <p><strong>使用方法：</strong></p>
+            <ul>
+              <li>点击"免费账号"标签页</li>
+              <li>在嵌入的网页中查看最新账号</li>
+              <li>复制账号信息后可手动添加到账号管理</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 常见问题 -->
+      <div class="tutorial-section">
+        <h3>❓ 常见问题</h3>
+        
+        <div class="faq-item">
+          <div class="faq-question">Q1: 批量注册失败怎么办？</div>
+          <div class="faq-answer">
+            <p><strong>可能原因：</strong></p>
+            <ul>
+              <li>IMAP 邮箱配置错误 → 检查邮箱设置并测试连接</li>
+              <li>网络连接问题 → 检查网络是否正常</li>
+              <li>验证码接收超时 → 稍后重试</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Q2: 自动登录不成功？</div>
+          <div class="faq-answer">
+            <p><strong>解决方法：</strong></p>
+            <ul>
+              <li>确保 Windsurf 已完全关闭</li>
+              <li>检查账号是否有效（未到期）</li>
+              <li>手动清除配置后重试</li>
+              <li>如果浏览器未自动打开，请手动完成登录</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Q3: 账号试用期是多久？</div>
+          <div class="faq-answer">
+            <p>Windsurf Pro 试用期为 <strong>13 天</strong>。系统会自动计算到期时间并提醒。</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Q4: 数据存储在哪里？</div>
+          <div class="faq-answer">
+            <p>所有账号数据都存储在本地，路径为：</p>
+            <p style="margin-top: 8px;"><strong>macOS：</strong></p>
+            <code style="display: block; padding: 8px; background: #f5f5f7; border-radius: 4px; margin-top: 4px;">
+              ~/Library/Application Support/Windsurf-Tool/accounts.json
+            </code>
+            <p style="margin-top: 12px;"><strong>Windows：</strong></p>
+            <code style="display: block; padding: 8px; background: #f5f5f7; border-radius: 4px; margin-top: 4px;">
+              %APPDATA%\Windsurf-Tool\accounts.json
+            </code>
+            <p style="margin-top: 8px;">完全本地化，不上传到任何服务器，安全可靠。</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Q5: 如何备份账号数据？</div>
+          <div class="faq-answer">
+            <p><strong>方法一：</strong>直接复制 accounts.json 文件</p>
+            <p><strong>方法二：</strong>在账号管理页面复制所有账号信息，保存到 txt 文件</p>
+            <p><strong>恢复数据：</strong>使用"导入账号"功能批量导入</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Q6: 支持哪些邮箱服务？</div>
+          <div class="faq-answer">
+            <p>支持所有提供 IMAP 服务的邮箱，常见的有：</p>
+            <ul>
+              <li><strong>Gmail：</strong>imap.gmail.com (需开启两步验证并使用应用专用密码)</li>
+              <li><strong>Outlook：</strong>outlook.office365.com</li>
+              <li><strong>QQ邮箱：</strong>imap.qq.com (需开启 IMAP 服务)</li>
+              <li><strong>163邮箱：</strong>imap.163.com</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 注意事项 -->
+      <div class="tutorial-section">
+        <h3>⚠️ 注意事项</h3>
+        <div class="warning-box">
+          <ul>
+            <li>本工具仅供学习交流使用，请遵守 Windsurf 服务条款</li>
+            <li>批量注册时请合理控制数量，避免对服务器造成压力</li>
+            <li>账号数据存储在本地，请妥善保管，避免泄露</li>
+            <li>切换账号前请保存当前工作，避免数据丢失</li>
+            <li>建议使用专用邮箱进行注册，不要使用重要邮箱</li>
+            <li>如遇问题，可访问 GitHub 仓库提交 Issue</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 配置 -->
+    <div id="settings" class="tab-content">
+      <h2 data-i18n="settingsTitle">邮箱配置</h2>
+      
+      <div class="form-group">
+        <label data-i18n="emailDomainList">邮箱域名列表（用于生成注册邮箱）</label>
+        <input type="text" id="newDomain" data-i18n-placeholder="domainInputPlaceholder" placeholder="输入域名，如: example.com">
+        <button class="btn btn-primary" onclick="addDomain()" style="margin-top:10px;" data-i18n="addDomainBtn">添加域名</button>
+      </div>
+      
+      <div class="domain-list" id="domainList"></div>
+      
+      <hr style="margin: 30px 0;">
+      
+      <h3 data-i18n="imapConfigTitle">IMAP邮箱配置（用于接收验证码）</h3>
+      <div class="form-group">
+        <label data-i18n="imapServer">IMAP服务器</label>
+        <input type="text" id="imapHost" data-i18n-placeholder="imapHostPlaceholder" placeholder="imap.example.com">
+      </div>
+      <div class="form-group">
+        <label data-i18n="port">端口</label>
+        <input type="number" id="imapPort" value="993">
+      </div>
+      <div class="form-group">
+        <label data-i18n="emailAccount">邮箱账号</label>
+        <input type="email" id="imapUser" data-i18n-placeholder="emailPlaceholder" placeholder="your@example.com">
+      </div>
+      <div class="form-group">
+        <label data-i18n="password">密码</label>
+        <input type="password" id="imapPassword">
+        <p style="font-size: 11px; color: #86868b; margin-top: 6px;">💡 提示：密码就是授权码（如 Gmail 需要使用应用专用密码）</p>
+      </div>
+      
+      <button class="btn btn-primary" onclick="testImap()" data-i18n="testConnection">测试连接</button>
+      <button class="btn btn-success" onclick="saveSettings()" data-i18n="saveConfig">保存配置</button>
+      
+      <hr style="margin: 30px 0;">
+      
+      <h2 data-i18n="languageSettings">语言设置</h2>
+      <div class="form-group">
+        <label data-i18n="selectLanguage">选择语言</label>
+        <select id="languageSelect" onchange="changeLanguage()" style="width: 200px;">
+          <option value="zh-CN">简体中文</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <button class="btn btn-warning" onclick="resetLanguageSelection()" data-i18n="resetLanguage">重新选择语言</button>
+        <p style="font-size: 11px; color: #86868b; margin-top: 8px;" data-i18n="resetLanguageTip">点击后将返回语言选择界面</p>
+      </div>
+      
+      <div id="settingsStatus"></div>
+    </div>
+  </div>
+
+  <!-- 手动添加账号弹窗 -->
+  <div id="addAccountModal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header" data-i18n="addAccountTitle">添加账号</div>
+      <div class="form-group">
+        <label data-i18n="email">邮箱</label>
+        <input type="email" id="manualEmail">
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label data-i18n="password">密码</label>
+        <input type="password" id="manualPassword">
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="hideAddAccountForm()" data-i18n="cancel">取消</button>
+        <button class="btn btn-success" onclick="addManualAccount()" data-i18n="add">添加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 导入账号弹窗 -->
+  <div id="importAccountModal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header" data-i18n="importAccountsTitle">导入账号</div>
+      <div class="status-message status-info" style="margin: 0 0 16px 0; padding: 10px 12px; font-size: 12px;">
+        <strong>格式说明：</strong><br>
+        • 仅支持 .txt 文件<br>
+        • 每行一个账号，格式：邮箱 密码<br>
+        • 示例：123456@qq.com ksihcshcs
+      </div>
+      <div class="form-group">
+        <label data-i18n="selectFile">选择文件</label>
+        <input type="file" id="importFile" accept=".txt" style="padding: 6px;">
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label>预览内容</label>
+        <textarea id="importPreview" readonly style="min-height: 150px; font-family: monospace; font-size: 12px; resize: vertical;" placeholder="选择文件后将显示预览..."></textarea>
+      </div>
+      <div id="importResult" style="margin-top: 12px;"></div>
+      <div class="modal-footer">
+        <button class="btn" onclick="hideImportAccountForm()" data-i18n="cancel">取消</button>
+        <button class="btn btn-success" onclick="importAccounts()" data-i18n="import">导入</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

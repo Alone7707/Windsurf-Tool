@@ -1,0 +1,74 @@
+Windsurf账号管理器 - 打包说明
+================================
+
+## 快速打包
+
+方式1: 使用打包脚本(推荐)
+./build.sh
+
+方式2: 手动打包
+npm install              # 安装依赖
+npm run build:mac        # macOS打包
+npm run build:win        # Windows打包
+npm run build:linux      # Linux打包
+npm run build            # 全平台打包
+
+## 打包输出
+
+打包文件位置: dist/
+
+macOS:
+- Windsurf账号管理器-1.0.0.dmg (DMG安装包)
+- Windsurf账号管理器-1.0.0-mac.zip (ZIP压缩包)
+- Windsurf账号管理器-1.0.0-arm64-mac.zip (Apple Silicon)
+- Windsurf账号管理器-1.0.0-x64-mac.zip (Intel)
+
+Windows:
+- Windsurf账号管理器 Setup 1.0.0.exe (安装程序)
+
+Linux:
+- Windsurf账号管理器-1.0.0.AppImage
+- windsurf-account-switcher_1.0.0_amd64.deb
+
+## 打包前检查
+
+1. 安装依赖: npm install
+2. 测试运行: npm start
+3. 清理旧文件: rm -rf dist/
+
+## 常见问题
+
+Q: 打包失败?
+A: 删除node_modules重新安装
+   rm -rf node_modules
+   npm install
+   npm run build:mac
+
+Q: macOS打包后无法打开?
+A: 移除隔离属性
+   xattr -cr /Applications/Windsurf账号管理器.app
+
+Q: 打包体积太大?
+A: 正常现象,包含了Electron和所有依赖
+
+## 版本更新
+
+更新版本号:
+npm version patch  # 1.0.0 -> 1.0.1
+npm version minor  # 1.0.0 -> 1.1.0
+npm version major  # 1.0.0 -> 2.0.0
+
+然后重新打包:
+npm run build:mac
+
+## 测试打包结果
+
+macOS:
+open dist/Windsurf账号管理器-1.0.0.dmg
+
+Windows:
+start dist/Windsurf账号管理器\ Setup\ 1.0.0.exe
+
+Linux:
+chmod +x dist/Windsurf账号管理器-1.0.0.AppImage
+./dist/Windsurf账号管理器-1.0.0.AppImage

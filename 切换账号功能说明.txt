@@ -1,0 +1,177 @@
+Windsurf账号切换功能说明
+============================
+
+## 功能概述
+
+实现了完全自动化的Windsurf账号切换流程,包括:
+1. 检测Windsurf配置文件路径
+2. 完整重置Windsurf配置和机器码
+3. 自动启动Windsurf应用
+4. 自动登录指定账号
+
+## 核心功能模块
+
+### 1. WindsurfManager类 (src/windsurfManager.js)
+
+**配置路径管理:**
+- appSupport: ~/Library/Application Support/Windsurf
+- preferences: ~/Library/Preferences/com.exafunction.windsurf.plist
+- httpStorages: ~/Library/HTTPStorages/com.exafunction.windsurf
+- caches: ~/Library/Caches/com.exafunction.windsurf
+- shipitCaches: ~/Library/Caches/com.exafunction.windsurf.ShipIt
+
+**核心方法:**
+- `detectConfigPaths()` - 检测所有配置文件是否存在
+- `checkWindsurfRunning()` - 检查Windsurf是否正在运行
+- `closeWindsurf()` - 关闭Windsurf应用
+- `deleteCachesAndData()` - 删除所有缓存和数据
+- `cleanUserData()` - 清理用户数据
+- `resetMachineIds()` - 重置机器标识
+- `fullReset()` - 执行完整重置
+- `launchWindsurf()` - 启动Windsurf应用
+- `autoLogin()` - 自动登录账号
+
+### 2. 机器码重置
+
+**重置的标识符:**
+- `telemetry.machineId` - 64位十六进制机器ID
+- `telemetry.sqmId` - 带大括号的UUID
+- `telemetry.devDeviceId` - 标准UUID
+- `machineid` - 标准UUID
+
+**文件修改:**
+- `User/globalStorage/storage.json` - 存储遥测ID
+- `machineid` - 存储机器ID
+
+**安全措施:**
+- 修改后设置文件为只读(0o444)
+- 清除其他可能的标识字段
+
+### 3. 自动登录流程
+
+**步骤:**
+1. 启动Windsurf并等待8秒(等待登录界面显示)
+2. 使用AppleScript激活Windsurf窗口
+3. 使用键盘模拟输入邮箱地址
+4. 按Tab键切换到密码输入框
+5. 使用键盘模拟输入密码
+6. 按Enter键提交登录
+
+**技术实现:**
+- 使用AppleScript的System Events控制键盘
+- 直接在Windsurf应用内部操作
+- 不打开额外的浏览器窗口
+- 模拟真实用户输入
+
+## 使用流程
+
+### 前端操作 (index.html + renderer.js)
+
+1. **进入切换账号页面**
+   - 自动加载账号列表
+   - 自动检测Windsurf配置路径
+   - 显示配置文件存在状态
+
+2. **选择要切换的账号**
+   - 从下拉列表选择
+   - 点击"自动切换账号"按钮
+
+3. **监控切换进度**
+   - 步骤1: 正在重置Windsurf配置...
+   - 步骤2: 正在启动Windsurf...
+   - 步骤3: 正在自动登录...
+
+4. **完成切换**
+   - 显示成功消息
+   - 返回Windsurf使用
+
+### 后端处理 (main.js)
+
+**IPC通信接口:**
+- `detect-windsurf-paths` - 检测配置路径
+- `full-reset-windsurf` - 完整重置
+- `launch-windsurf` - 启动应用
+- `auto-login-windsurf` - 自动登录
+- `switch-account` - 切换账号(集成所有步骤)
+
+**进度通知:**
+- 通过`switch-progress`事件实时通知前端
+
+## 技术细节
+
+### 删除的目录和文件
+
+**Application Support/Windsurf下:**
+- Cache, CachedData, CachedExtensionVSIXs
+- Code Cache, Cookies, GPUCache
+- Local Storage, Session Storage
+- logs, Network Persistent State
+- 等共20+个缓存目录
+
+**其他位置:**
+- Preferences plist文件
+- HTTP Storages目录
+- Caches目录
+- ShipIt缓存目录
+
+### 保留的内容
+
+**用户设置(可选):**
+- settings.json - 编辑器设置
+- keybindings.json - 快捷键设置
+
+**清理但保留的目录:**
+- User目录结构
+- Backups目录
+
+## 安全性考虑
+
+1. **进程检查**: 切换前检查Windsurf是否运行
+2. **强制关闭**: 必要时使用SIGKILL强制关闭
+3. **文件权限**: 重置后的配置文件设为只读
+4. **错误处理**: 每个步骤都有完整的错误捕获
+5. **状态验证**: 登录后验证URL确认成功
+
+## 与Python版本的对比
+
+**参考文件:** /Users/oreo/Downloads/注册windsurf/windsurf_reset.py
+
+**主要差异:**
+1. Node.js实现,集成到Electron应用
+2. 添加了自动登录功能
+3. 实时进度通知
+4. 图形化界面操作
+5. 与账号管理系统集成
+
+**保持一致:**
+1. 相同的配置路径
+2. 相同的删除逻辑
+3. 相同的机器码重置方法
+4. 相同的文件权限设置
+
+## 故障排除
+
+**问题1: Windsurf无法关闭**
+- 使用killall -9强制关闭
+- 等待2秒后继续
+
+**问题2: 配置文件不存在**
+- 自动创建必要的目录
+- 生成新的配置文件
+
+**问题3: 自动登录失败**
+- 检查网络连接
+- 验证账号密码正确性
+- 查看控制台错误信息
+
+**问题4: 权限不足**
+- 确保有写入权限
+- 检查文件是否被锁定
+
+## 未来改进
+
+1. 添加备份恢复功能
+2. 支持Windows和Linux系统
+3. 添加登录验证码处理
+4. 优化启动等待时间
+5. 添加切换历史记录

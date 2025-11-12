@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
+  <title>Windsurf-Tool 1.0 - Language Selection</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+      background: #f5f5f7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .language-selector {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 40px 48px;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.12);
+      text-align: center;
+      min-width: 480px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .logo {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      color: #1d1d1f;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: #86868b;
+      margin-bottom: 32px;
+      font-weight: 400;
+    }
+
+    .language-options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .language-option {
+      background: #f5f5f7;
+      border: 1px solid #e5e5ea;
+      border-radius: 8px;
+      padding: 16px 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .language-option:hover {
+      background: #ebebf0;
+    }
+
+    .language-option.selected {
+      border-color: #007aff;
+      background: #e5f2ff;
+    }
+
+    .language-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .language-flag {
+      font-size: 32px;
+      line-height: 1;
+    }
+
+    .language-text {
+      text-align: left;
+    }
+
+    .language-name {
+      font-size: 17px;
+      font-weight: 500;
+      color: #1d1d1f;
+      margin-bottom: 2px;
+    }
+
+    .language-code {
+      font-size: 13px;
+      color: #86868b;
+      font-weight: 400;
+    }
+
+    .check-icon {
+      font-size: 20px;
+      color: #007aff;
+      opacity: 0;
+    }
+
+    .language-option.selected .check-icon {
+      opacity: 1;
+    }
+
+    .tip {
+      font-size: 13px;
+      color: #86868b;
+      padding: 12px 16px;
+      background: #f5f5f7;
+      border-radius: 8px;
+      margin-top: 8px;
+      line-height: 1.5;
+      border: 1px solid #e5e5ea;
+    }
+
+    .tip strong {
+      color: #007aff;
+      font-weight: 500;
+    }
+
+    .loading {
+      display: none;
+      margin-top: 20px;
+      color: #007aff;
+      font-size: 14px;
+      font-weight: 400;
+    }
+
+    .loading.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="language-selector">
+    <div class="logo">🌐</div>
+    <h1>Windsurf-Tool 1.0</h1>
+    <p class="subtitle">Select Language / 选择语言</p>
+    
+    <div class="language-options">
+      <div class="language-option selected" data-lang="zh-CN">
+        <div class="language-info">
+          <span class="language-flag">🇨🇳</span>
+          <div class="language-text">
+            <div class="language-name">简体中文</div>
+            <div class="language-code">Simplified Chinese</div>
+          </div>
+        </div>
+        <span class="check-icon">✓</span>
+      </div>
+      
+      <div class="language-option" data-lang="en">
+        <div class="language-info">
+          <span class="language-flag">🇺🇸</span>
+          <div class="language-text">
+            <div class="language-name">English</div>
+            <div class="language-code">English (US)</div>
+          </div>
+        </div>
+        <span class="check-icon">✓</span>
+      </div>
+    </div>
+    
+    <div class="tip">
+      <strong>Enter</strong> 键使用默认语言（简体中文）<br>
+      Press <strong>Enter</strong> to use default language (Simplified Chinese)
+    </div>
+    
+    <div class="loading">
+      <span id="loadingText">正在启动... / Starting...</span>
+    </div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+    
+    let selectedLang = 'zh-CN';
+    const options = document.querySelectorAll('.language-option');
+    const loading = document.querySelector('.loading');
+    
+    // 首次启动，显示语言选择
+    options.forEach(option => {
+      option.addEventListener('click', () => {
+        options.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+        selectedLang = option.dataset.lang;
+      });
+    });
+    
+    // 监听回车键
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        confirmLanguage();
+      }
+    });
+    
+    // 双击选项直接确认
+    options.forEach(option => {
+      option.addEventListener('dblclick', () => {
+        selectedLang = option.dataset.lang;
+        confirmLanguage();
+      });
+    });
+    
+    async function confirmLanguage() {
+      // 保存到 localStorage
+      localStorage.setItem('app_language', selectedLang);
+      
+      // 通过 IPC 保存到文件，用于主进程判断
+      try {
+        const result = await ipcRenderer.invoke('save-language', selectedLang);
+        if (result.success) {
+          console.log('语言设置已保存:', selectedLang);
+        } else {
+          console.error('保存语言设置失败:', result.error);
+        }
+      } catch (err) {
+        console.error('保存语言设置异常:', err);
+      }
+      
+      startApp(selectedLang);
+    }
+    
+    function startApp(lang) {
+      loading.classList.add('active');
+      
+      // 延迟一下，让动画更流畅
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 800);
+    }
+  </script>
+</body>
+</html>

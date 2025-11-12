@@ -18,10 +18,16 @@
 
 | 平台 | 架构 | 下载链接 |
 |------|------|----------|
-| macOS | Intel (x64) | [Windsurf-Tool-1.0.0.dmg](https://github.com/crispvibe/Windsurf-Tool/releases/download/v1.0.0/Windsurf-Tool-1.0.0.dmg) |
-| macOS | Apple Silicon (arm64) | [Windsurf-Tool-1.0.0-arm64.dmg](https://github.com/crispvibe/Windsurf-Tool/releases/download/v1.0.0/Windsurf-Tool-1.0.0-arm64.dmg) |
+| Windows | x64 | [Windsurf-Tool-1.0.0.exe](https://github.com/yourusername/windsurf-tool/releases/latest) |
+| macOS | Intel (x64) | [Windsurf-Tool-1.0.0.dmg](https://github.com/yourusername/windsurf-tool/releases/latest) |
+| macOS | Apple Silicon (arm64) | [Windsurf-Tool-1.0.0-arm64.dmg](https://github.com/yourusername/windsurf-tool/releases/latest) |
+| Linux | x64 | [Windsurf-Tool-1.0.0.AppImage](https://github.com/yourusername/windsurf-tool/releases/latest) |
 
-[功能特性](#功能特性) • [快速开始](#快速开始) • [使用指南](#使用指南) • [打包说明](#打包说明) • [工作原理](#工作原理) • [Windows适配](#windows适配)
+[![GitHub Actions](https://github.com/yourusername/windsurf-tool/workflows/Build%20All%20Platforms/badge.svg)](https://github.com/yourusername/windsurf-tool/actions)
+[![Release](https://img.shields.io/github/v/release/yourusername/windsurf-tool)](https://github.com/yourusername/windsurf-tool/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/yourusername/windsurf-tool/total)](https://github.com/yourusername/windsurf-tool/releases)
+
+[功能特性](#功能特性) • [快速开始](#快速开始) • [使用指南](#使用指南) • [自动化构建](#自动化构建) • [工作原理](#工作原理) • [Windows适配](#windows适配)
 
 </div>
 
@@ -55,13 +61,35 @@
 
 ---
 
+## 自动化构建
+
+本项目使用 GitHub Actions 实现自动化构建，支持以下平台：
+
+- **Windows**: .exe 安装包
+- **macOS**: .dmg 安装包和 .zip 压缩包（Intel + Apple Silicon）
+- **Linux**: .AppImage 和 .deb 包
+
+### 构建触发条件
+
+1. **推送代码** - 推送到 `main` 或 `master` 分支时自动构建
+2. **版本发布** - 创建版本标签（如 `v1.0.0`）时自动构建
+3. **手动触发** - 在 GitHub Actions 页面手动运行工作流
+
+### 构建输出
+
+构建完成后，在 GitHub 仓库的 "Releases" 页面会生成对应平台的安装包：
+
+- Windows 用户直接下载 `.exe` 文件进行安装
+- macOS 用户根据芯片架构下载对应的 `.dmg` 文件
+- Linux 用户可选择 `.AppImage` 或 `.deb` 包
+
 ## 快速开始
 
 ### 环境要求
 
 - **Node.js**: v16.0.0 或更高版本
 - **npm**: v7.0.0 或更高版本
-- **操作系统**: macOS (目前仅支持 macOS)
+- **操作系统**: 支持 Windows、macOS、Linux
 
 ### 安装步骤
 

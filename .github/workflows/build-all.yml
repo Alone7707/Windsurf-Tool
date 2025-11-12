@@ -60,8 +60,9 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: Mac App
-        path: dist/*.dmg
-        path: dist/*.zip
+        path: |
+          dist/*.dmg
+          dist/*.zip
 
   build-linux:
     runs-on: ubuntu-latest
@@ -86,5 +87,6 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: Linux App
-        path: dist/*.AppImage
-        path: dist/*.deb
+        path: |
+          dist/*.AppImage
+          dist/*.deb
